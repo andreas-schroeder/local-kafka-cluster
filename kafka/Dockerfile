@@ -1,4 +1,4 @@
-FROM java:8
+FROM anapsix/alpine-java
 
 MAINTAINER Andreas Schroeder, https://github.com/andreas-schroeder
 
@@ -32,12 +32,8 @@ VOLUME /kafka/config
 # Expose Kafka data volume.
 VOLUME /var/lib/kafka
 
-# Expose port for Zookeeper
-EXPOSE 2181
-
-# Expose port for Kafka
+# Kafka broker port.
 ENV kafka_port=9092
-EXPOSE $kafka_port
 
 # Default Kafka broker id
 ENV kafka_id=1
