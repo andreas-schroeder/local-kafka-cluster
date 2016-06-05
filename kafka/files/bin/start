@@ -1,0 +1,51 @@
+#!/bin/bash
+
+usage_info() {
+  echo "Usage: start [zookeper|kafka]"
+  exit 1
+}
+
+update_config() {
+  config=$1
+  # escape dots in the name.
+  name="${2/./\\.}"
+  value=$3
+  sed -r -i "s@(^|^#)(${name})=(.*)@\2=${value}@g" $1
+}
+
+start_zookeeper() {
+  trap "$KAFKA_HOME/bin/zookeeper-server-stop.sh; echo 'ZooKeeper stopped.'; exit" SIGHUP SIGINT SIGTERM
+  bin/zookeeper-server-start.sh config/zookeeper.properties
+}
+
+start_kafka() {
+  docker_host_ip=$(ip address | awk '/scope global/ { print $2 }' | sed s:/16::)
+  update_config config/server.properties 'advertised.host.name' "$docker_host_ip"
+  update_config config/server.properties 'port'                 "$kafka_port"
+  update_config config/server.properties 'listeners'            "PLAINTEXT://:$kafka_port"
+  update_config config/server.properties 'broker.id'            "$kafka_id"
+
+  trap "$KAFKA_HOME/bin/kafka-server-stop.sh; echo 'Kafka stopped.'; exit" SIGHUP SIGINT SIGTERM
+  bin/kafka-server-start.sh config/server.properties
+}
+
+if (($# < 1)); then
+  usage_info
+fi
+
+service="$1"
+shift;
+
+cd $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/..
+
+case "$service" in
+  zookeeper)
+    start_zookeeper
+    ;;
+  kafka)
+    start_kafka
+    ;;
+  *)
+    usage_info
+    ;;
+esac

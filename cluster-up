@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+require 'yaml'
+
+# default cluster size is 3.
+cluster_size = ARGV.empty? ? 3 : ARGV[0].to_i
+
+COMPOSE = {
+  'version' => '2',
+  'networks' => { 'cluster' => { 'driver' => 'bridge' } },
+  'services' => {
+    'zookeeper' => {
+      'image' => 'kafka',
+      'command' => 'zookeeper',
+      'ports' => [ "2181:2181" ],
+      'networks' => [ 'cluster' ],
+    }
+  }
+}
+
+def add_broker(id)
+  name = "kafka-#{id}"
+  port = 9091 + id
+  COMPOSE['services'][name] = {
+    'image' => 'kafka',
+    'environment' => {
+      'kafka_port' => port,
+      'kafka_id' => id
+    },
+    'hostname' => name,
+    'ports' => [ "#{port}:#{port}" ],
+    'networks' => [ 'cluster' ],
+    'links' => [ "zookeeper:zookeeper" ]
+  }
+end
+
+(1..cluster_size).each do |i|
+  add_broker(i)
+end
+
+File.write('docker-compose.yml', COMPOSE.to_yaml)
+
+`docker-compose --project-name local up -d`

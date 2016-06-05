@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+`docker-compose --project-name local stop`
+`docker-compose --project-name local rm -f`
