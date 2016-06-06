@@ -50,7 +50,7 @@ docker host (for local development).
 
 To achieve this for both Linux and Mac - in the face of
 [some verified existing issues](https://github.com/docker/docker/issues/22753)
-with Mac - the best way to go is to use the [docker host IP](./cluster-up#L9-L14).
+with Mac - the best way to go is to use the [docker host IP](./cluster-up#L10-L15).
 Without that issue, it would be more sensible to use the docker container IPs.
 
 Using the docker host IP as advertised broker address makes broker-to-broker
