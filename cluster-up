@@ -2,9 +2,10 @@
 
 require 'yaml'
 
+IMAGE = 'andschroeder/local-kafka-cluster'
+
 # default cluster size is 3.
 cluster_size = ARGV.empty? ? 3 : ARGV[0].to_i
-
 
 if `uname`.strip == 'Darwin'
   HOST_IP = `ipconfig getifaddr en0 || ipconfig getifaddr en1`.strip
@@ -13,14 +14,14 @@ else
   HOST_IP = `ip -4 addr show scope global dev #{interface} | grep inet`.split(" ")[1][0..-4]
 end
 
-puts "host ip is #{HOST_IP}"
+puts "Host IP used for Kafka Brokers is #{HOST_IP}"
 
 COMPOSE = {
   'version' => '2',
   'networks' => { 'cluster' => { 'driver' => 'bridge' } },
   'services' => {
     'zookeeper' => {
-      'image' => 'kafka',
+      'image' => IMAGE,
       'command' => 'zookeeper',
       'ports' => [ "2181:2181" ],
       'networks' => [ 'cluster' ],
@@ -29,10 +30,10 @@ COMPOSE = {
 }
 
 def add_broker(id)
-  name = "kafka-#{id}"
+  name = "kafka_#{id}"
   port = 9091 + id
   COMPOSE['services'][name] = {
-    'image' => 'kafka',
+    'image' => IMAGE,
     'environment' => {
       'kafka_port' => port,
       'kafka_id' => id,
