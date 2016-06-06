@@ -3,8 +3,8 @@ FROM anapsix/alpine-java
 MAINTAINER Andreas Schroeder, https://github.com/andreas-schroeder
 
 # Versions
-ARG scala_version
-ARG kafka_version
+ARG scala_version=2.11
+ARG kafka_version=0.10.0.0
 
 # Fetch Kafka & Zookeeper tarfile from apache mirror & extract it to /kafka_<versions-info>.
 RUN \
