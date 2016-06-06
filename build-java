@@ -1,3 +1,0 @@
-#!/bin/bash
-
-docker build -t java:8 ./java

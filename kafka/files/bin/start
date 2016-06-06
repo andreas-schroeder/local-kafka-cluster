@@ -19,8 +19,7 @@ start_zookeeper() {
 }
 
 start_kafka() {
-  docker_host_ip=$(ip address | awk '/scope global/ { print $2 }' | sed s:/16::)
-  update_config config/server.properties 'advertised.host.name' "$docker_host_ip"
+  update_config config/server.properties 'advertised.host.name' "$kafka_ip"
   update_config config/server.properties 'port'                 "$kafka_port"
   update_config config/server.properties 'listeners'            "PLAINTEXT://:$kafka_port"
   update_config config/server.properties 'broker.id'            "$kafka_id"

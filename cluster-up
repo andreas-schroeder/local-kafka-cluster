@@ -5,6 +5,16 @@ require 'yaml'
 # default cluster size is 3.
 cluster_size = ARGV.empty? ? 3 : ARGV[0].to_i
 
+
+if `uname`.strip == 'Darwin'
+  HOST_IP = `ipconfig getifaddr en0 || ipconfig getifaddr en1`.strip
+else
+  interface=`route -n | grep '^0.0.0.0'`.split("\n")[0].split(" ")[-1]
+  HOST_IP = `ip -4 addr show scope global dev #{interface} | grep inet`.split(" ")[1][0..-4]
+end
+
+puts "host ip is #{HOST_IP}"
+
 COMPOSE = {
   'version' => '2',
   'networks' => { 'cluster' => { 'driver' => 'bridge' } },
@@ -25,7 +35,8 @@ def add_broker(id)
     'image' => 'kafka',
     'environment' => {
       'kafka_port' => port,
-      'kafka_id' => id
+      'kafka_id' => id,
+      'kafka_ip' => HOST_IP
     },
     'hostname' => name,
     'ports' => [ "#{port}:#{port}" ],

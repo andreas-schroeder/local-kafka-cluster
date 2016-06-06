@@ -33,6 +33,9 @@ VOLUME /kafka/config
 VOLUME /var/lib/kafka
 
 # Kafka broker port.
+ENV kafka_ip=127.0.0.1
+
+# Kafka broker port.
 ENV kafka_port=9092
 
 # Default Kafka broker id
