@@ -1,4 +1,4 @@
-#!/usr/bash
+#!/bin/bash
 
 docker-compose --project-name local stop
 docker-compose --project-name local rm -f
