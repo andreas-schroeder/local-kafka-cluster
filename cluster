@@ -1,0 +1,82 @@
+#!/bin/bash
+
+IMAGE='effata/local-kafka-cluster'
+FILE='docker-compose.yml'
+BASE_PORT="9091"
+PROJECT_NAME="local"
+
+_cluster_down() {
+  docker-compose -f $FILE --project-name $PROJECT_NAME down
+}
+
+_cluster_up() {
+  CLUSTER_SIZE=$1
+
+  if [[ $(uname) = 'Darwin' ]]; then
+    HOST_IP=$(ipconfig getifaddr en0 || ipconfig getifaddr en1)
+  else
+    INTERFACE=$(route -n | grep '^0.0.0.0' | head -n 1 | awk '{print $NF}')
+    HOST_IP=$(ip -4 addr show scope global dev $INTERFACE | grep inet | awk '{print $2}' | awk -F"/" '{print $1}')
+  fi
+
+  echo "Host IP used for Kafka Brokers is $HOST_IP"
+
+  cat > $FILE <<-END
+version: '2'
+networks:
+  cluster:
+    driver: bridge
+services:
+  zookeeper:
+    image: $IMAGE
+    command: zookeeper
+    ports:
+    - 2181:2181
+    networks:
+    - cluster
+END
+
+  add_broker() {
+    id=$1
+    port=$((BASE_PORT + id))
+  cat >> $FILE <<-END
+  kafka_$id:
+    image: $IMAGE
+    environment:
+      kafka_port: $port
+      kafka_id: $id
+      kafka_ip: $HOST_IP
+      kafka_rack: rack$id
+    hostname: kafka_$id
+    ports:
+    - $port:$port
+    networks:
+    - cluster
+    links:
+    - zookeeper:zookeeper
+END
+
+  }
+
+  COUNTER=1
+  while [[  $COUNTER -le $CLUSTER_SIZE ]]; do
+     add_broker $COUNTER
+     let COUNTER=COUNTER+1 
+  done
+
+  docker-compose -f $FILE --project-name $PROJECT_NAME up -d
+}
+
+COMMAND=$1
+
+if [[ $COMMAND = 'down' ]]; then
+  _cluster_down
+elif [[ $COMMAND = 'up' ]]; then
+  _cluster_up ${2:-"3"}
+else
+  cat <<HELP
+Usage: ./cluster up CLUSTER_SIZE
+OR     ./cluster down
+
+HELP
+fi
