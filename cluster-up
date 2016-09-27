@@ -37,7 +37,8 @@ def add_broker(id)
     'environment' => {
       'kafka_port' => port,
       'kafka_id' => id,
-      'kafka_ip' => HOST_IP
+      'kafka_ip' => HOST_IP,
+      'kafka_rack' => "rack#{id}",
     },
     'hostname' => name,
     'ports' => [ "#{port}:#{port}" ],
