@@ -14,7 +14,6 @@ compose file syntax version 2.
 
 - [Docker](https://www.docker.com) 1.10.0 or later
 - [Docker Compose](https://docs.docker.com/compose) 1.6.0 or later
-- [Ruby](https://www.ruby-lang.org)
 
 Also, the ports `2181`, `9092`, `9093`, and `9094` (for a default three broker
 setup) should be available.
@@ -25,11 +24,11 @@ Bring up the cluster and specify that you want e.g. five brokers (the default
 cluster size is three brokers) with
 
 ```
-./cluster-up 5
+./cluster up 5
 ```
 
 This will create a `docker-compose.yml` file in the directory that will be used
-by `./cluster-down` do delete the cluster (i.e. this stops and removes all data).
+by `./cluster down` do delete the cluster (i.e. this stops and removes all data).
 If you do not want to delete data, use the `docker-compose` commands directly.
 
 ## Connectivity
