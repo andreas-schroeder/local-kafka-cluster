@@ -23,6 +23,7 @@ start_kafka() {
   update_config config/server.properties 'port'                 "$kafka_port"
   update_config config/server.properties 'listeners'            "PLAINTEXT://:$kafka_port"
   update_config config/server.properties 'broker.id'            "$kafka_id"
+  update_config config/server.properties 'broker.rack'          "$kafka_rack"
 
   trap "$KAFKA_HOME/bin/kafka-server-stop.sh; echo 'Kafka stopped.'; exit" SIGHUP SIGINT SIGTERM
   bin/kafka-server-start.sh config/server.properties
